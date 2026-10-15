@@ -79,7 +79,7 @@ This will build the empty and part1 executables in the part1/ directory.
 ```bash
 make run
 ```
-This will run both executables: empty first, followed by part1.
+This will run both executables under strace, generating empty.trace and part1.trace to record their system calls.
 
 ## Part 2
 
