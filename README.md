@@ -1,16 +1,17 @@
 # Elevator
 
-[Description]
+This project extends the Linux kernel with a simulated pet elevator system. It includes system call tracing, a custom kernel timer module, and an elevator implementation using kernel threads, linked lists, mutexes, and a scheduling algorithm. The elevator transports pets between floors while enforcing capacity, weight, and movement constraints.
 
 ## Group Members
-- **John Doe**: jd19@fsu.edu
-- **Jane Smith**: js19@fsu.edu
-- **Alex Brown**: ab19@fsu.edu
+- Will Schmidt: cws22b@fsu.edu
+- Aleksandar Stavreski: as21em@fsu.edu
+- Carter Venclauskas: cv24i@fsu.edu
+
 ## Division of Labor
 
 ### Part 1: System Call Tracing
-- **Responsibilities**: [Description]
-- **Assigned to**: John Doe
+- **Responsibilities**: Write C programs to trace and compare system calls.
+- **Assigned to**: Will Schmidt
 
 ### Part 2: Timer Kernel Module
 - **Responsibilities**: [Description]
@@ -65,22 +66,20 @@ elevator/
 # How to Compile & Execute
 
 ### Requirements
-- **Compiler**: e.g., `gcc` for C/C++, `rustc` for Rust.
-- **Dependencies**: List any libraries or frameworks necessary (rust only).
+- **Compiler**: `gcc`
 
 ## Part 1
 
 ### Compilation
-For a C/C++ example:
 ```bash
 make
 ```
-This will build the executable in ...
+This will build the empty and part1 executables in the part1/ directory.
 ### Execution
 ```bash
 make run
 ```
-This will run the program ...
+This will run both executables: empty first, followed by part1.
 
 ## Part 2
 
@@ -118,7 +117,7 @@ Each member records their contributions here.
 
 | Date       | Work Completed / Notes |
 |------------|------------------------|
-| YYYY-MM-DD | [Description of task]  |
+| 2026-10-15 | Implemented part 1     |
 | YYYY-MM-DD | [Description of task]  |
 | YYYY-MM-DD | [Description of task]  |
 
@@ -155,5 +154,3 @@ Document in-person meetings, their purpose, and what was discussed.
 - **Bug 1**: This is bug 1.
 - **Bug 2**: This is bug 2.
 - **Bug 3**: This is bug 3.
-
-## Considerations
