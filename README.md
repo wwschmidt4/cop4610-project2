@@ -56,9 +56,8 @@ elevator/
 │   └── Makefile
 ├── part3/
 │   ├── src/
-│   ├── tests/
 │   ├── Makefile
-│   └── sys_call.c
+│   └── syscalls.c
 ├── Makefile
 └── README.md
 
