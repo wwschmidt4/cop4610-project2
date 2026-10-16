@@ -95,20 +95,24 @@ make run
 ```
 This will run the program ...
 
+## Part 3a System Calls (`syscalls.c` and its Makefile)
 
-## Part 3
+These two files are not built from this repository. They are copied into the kernel
+source tree and compiled into the kernel.
 
-### Compilation
-For a C/C++ example:
-```bash
-make
-```
-This will build the executable in ...
-### Execution
-```bash
-make run
-```
-This will run the program ...
+1. Create a `syscalls/` directory at the top of the kernel source tree.
+2. Copy `syscalls.c` and its `Makefile` into it. The Makefile contains one line:
+   `obj-y := syscalls.o`
+3. Add `syscalls/` to the kernel's top-level build (`obj-y += syscalls/` in `Kbuild`, or
+   the `core-y` line in the top-level `Makefile` on older kernels).
+4. Make the changes your architecture needs to register the system calls as 548, 549
+   and 550, and add their prototypes to `include/linux/syscalls.h`.
+   - x86_64: add entries to `arch/x86/entry/syscalls/syscall_64.tbl`.
+   - arm64: edit `include/uapi/asm-generic/unistd.h` and raise `__NR_syscalls` to 551.
+5. Rebuild and install the kernel, then reboot.
+
+`syscalls.c` only forwards each call to the `elevator` module through exported function
+pointers. The system calls return `-ENOSYS` until `elevator.ko` is loaded.
 
 ## Development Log
 Each member records their contributions here.
