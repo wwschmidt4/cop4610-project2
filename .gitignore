@@ -4,6 +4,9 @@
 /part1/empty
 /part1/part1
 
+# part 3 test folder
+/part3/tests/
+
 # Compiled files
 *.o
 *.ko
