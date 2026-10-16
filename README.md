@@ -106,9 +106,9 @@ source tree and compiled into the kernel.
 3. Add `syscalls/` to the kernel's top-level build (`obj-y += syscalls/` in `Kbuild`, or
    the `core-y` line in the top-level `Makefile` on older kernels).
 4. Make the changes your architecture needs to register the system calls as 548, 549
-   and 550, and add their prototypes to `include/linux/syscalls.h`.
+   and 550.
    - x86_64: add entries to `arch/x86/entry/syscalls/syscall_64.tbl`.
-   - arm64: edit `include/uapi/asm-generic/unistd.h` and raise `__NR_syscalls` to 551.
+   - arm64: add entries to `arch/arm64/tools/syscall_64.tbl`.
 5. Rebuild and install the kernel, then reboot.
 
 `syscalls.c` only forwards each call to the `elevator` module through exported function
