@@ -101,7 +101,7 @@ These two files are not built from this repository. They are copied into the ker
 source tree and compiled into the kernel.
 
 1. Create a `syscalls/` directory at the top of the kernel source tree.
-2. Copy `syscalls.c` and its `Makefile` into it. The Makefile contains one line:
+2. Copy `syscalls.c` and create a makefile with the one line:
    `obj-y := syscalls.o`
 3. Add `syscalls/` to the kernel's top-level build (`obj-y += syscalls/` in `Kbuild`, or
    the `core-y` line in the top-level `Makefile` on older kernels).
