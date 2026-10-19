@@ -122,7 +122,7 @@ Each member records their contributions here.
 |------------|------------------------|
 | 2026-10-15 | Implemented part 1     |
 | 2026-10-16 | Implemented part 3a    |
-| YYYY-MM-DD | [Description of task]  |
+| 2026-10-19 | basic proc file code added  |
 
 ### [Member 2]
 
