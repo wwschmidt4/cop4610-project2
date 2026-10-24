@@ -2,12 +2,25 @@
 #include <linux/kernel.h>
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
+#include <linux/list.h>
+#include <linux/slab.h>
 
 MODULE_LICENSE("GPL");
+MODULE_DESCRIPTION("Pet elevator kernel module");
 
 extern int (*STUB_start_elevator)(void);
 extern int (*STUB_issue_request)(int, int, int);
 extern int (*STUB_stop_elevator)(void);
+
+struct elevator_request {
+    int start_floor;
+    int dest_floor;
+    int pet_type;
+    struct list_head list;
+};
+
+static LIST_HEAD(request_queue);
+
 
 static int start_elevator(void)
 {
@@ -16,6 +29,15 @@ static int start_elevator(void)
 
 static int issue_request(int start, int dest, int type)
 {
+	struct elevator_request *req;
+	
+	req = kmalloc(sizeof(*req), GFP_KERNEL);
+	if (!req) return -ENOMEM;
+	req->start_floor = start;
+	req->dest_floor = dest;
+	req->pet_type = type;
+	
+	list_add_tail(&req->list, &request_queue);
 	return 0;
 }
 
@@ -29,6 +51,8 @@ enum elevator_state { OFFLINE, IDLE, LOADING, UP, DOWN };
 static const char * const state_names[] = {
     "OFFLINE", "IDLE", "LOADING", "UP", "DOWN"
 };
+
+
 static enum elevator_state state = OFFLINE;
 static int current_floor = 1;
 
@@ -72,6 +96,19 @@ static void __exit elevator_exit(void)
 	STUB_issue_request = NULL;
 	STUB_stop_elevator = NULL;
 	remove_proc_entry("elevator", NULL);
+}
+
+static struct elevator_request *get_next_request(void)
+{
+    struct elevator_request *request;
+
+    if (list_empty(&request_queue)) return NULL;
+
+    request = list_first_entry(&request_queue, struct elevator_request, list);
+
+    list_del(&request->list);
+
+    return request;
 }
 
 module_init(elevator_init);
