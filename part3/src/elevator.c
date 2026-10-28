@@ -4,15 +4,38 @@
 #include <linux/seq_file.h>
 #include <linux/list.h>
 #include <linux/slab.h>
+#include <linux/kthread.h>
+#include <linux/delay.h>
 
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Pet elevator kernel module");
 
+// states for proc file
+enum elevator_state { OFFLINE, IDLE, LOADING, UP, DOWN };
+static const char * const state_names[] = {
+    "OFFLINE", "IDLE", "LOADING", "UP", "DOWN"
+};
+static enum elevator_state state = OFFLINE;
+static int current_floor = 1;
+static bool stopping = false;  // true once stop_elevator() has been called and we're draining
+
+// weight (lbs) and single-letter code per pet_type (0=Chihuahua,1=Pug,2=Pughuahua,3=Dachshund)
+static const int pet_weights[] = {3, 14, 10, 16};
+static const char pet_letters[] = {'C', 'P', 'H', 'D'};
+
+// running totals for the proc file
+static int pets_waiting = 0;   // total pets across all floor queues
+static int pets_serviced = 0;  // total pets that have disembarked
+
+// pointers to syscalls
 extern int (*STUB_start_elevator)(void);
 extern int (*STUB_issue_request)(int, int, int);
 extern int (*STUB_stop_elevator)(void);
 
-//structur to represent elevator req
+// stores the running thread so stop_elevator can signal it later
+static struct task_struct *elevator_thread;
+
+//structure to represent elevator req
 struct elevator_request {
     int start_floor;
     int dest_floor;
@@ -25,14 +48,49 @@ struct elevator_request {
 static struct list_head floor_queues[NUM_FLOORS];
 static LIST_HEAD(elevator_queue);
 
+// main loop for the elevator thread
+static int elevator_run(void *data)
+{
+   while (!kthread_should_stop()) 
+   {
+        if (stopping && list_empty(&elevator_queue)) 
+		{
+            state = OFFLINE;
+            break;   // thread exits on its own
+        }
+
+        msleep(100);
+    }
+    elevator_thread = NULL;
+    stopping = false;
+    return 0;
+}
+
 
 static int start_elevator(void)
 {
+	// already running
+	if (elevator_thread)
+        return 1;
+
+    state = IDLE;
+
+	// launch the thread
+    elevator_thread = kthread_run(elevator_run, NULL, "elevator_thread");
+    if (IS_ERR(elevator_thread)) {
+        elevator_thread = NULL;
+        state = OFFLINE;
+        return PTR_ERR(elevator_thread);
+    }
 	return 0;
+
 }
 
 static int issue_request(int start, int dest, int type)
 {
+
+	if (!elevator_thread || stopping) return 1;
+
 	struct elevator_request *req;
 	
 	//if start out of bounds
@@ -53,29 +111,67 @@ static int issue_request(int start, int dest, int type)
 	INIT_LIST_HEAD(&req->list);
 	
 	list_add_tail(&req->list, &floor_queues[start - 1]);
+	pets_waiting++;
 	return 0;
 }
 
 static int stop_elevator(void)
 {
-	return 0;
+	 if (!elevator_thread || stopping)
+        return 1;   
+
+    stopping = true;   // signal the thread to finish up and self-terminate
+    return 0;
 }
-
-// states for proc file
-enum elevator_state { OFFLINE, IDLE, LOADING, UP, DOWN };
-static const char * const state_names[] = {
-    "OFFLINE", "IDLE", "LOADING", "UP", "DOWN"
-};
-
-
-static enum elevator_state state = OFFLINE;
-static int current_floor = 1;
 
 // fills the output each time proc file is read
 static int elevator_show(struct seq_file *m, void *v)
 {
+    struct elevator_request *req;
+    int current_load = 0;
+    int floor;
+
+    // compute current load by summing weights of pets in the elevator
+    list_for_each_entry(req, &elevator_queue, list) 
+	{
+        current_load += pet_weights[req->pet_type];
+    }
+
     seq_printf(m, "Elevator state: %s\n", state_names[state]);
     seq_printf(m, "Current floor: %d\n", current_floor);
+    seq_printf(m, "Current load: %d lbs\n", current_load);
+
+    // elevator status: 2-char code (letter + dest floor) per pet onboard
+    seq_printf(m, "Elevator status: ");
+    list_for_each_entry(req, &elevator_queue, list) 
+	{
+        seq_printf(m, "%c%d ", pet_letters[req->pet_type], req->dest_floor);
+    }
+    seq_printf(m, "\n");
+
+    // per-floor breakdown, printed top floor to bottom floor
+    for (floor = NUM_FLOORS; floor >= 1; floor--) 
+	{
+        int count = 0;
+        char marker = (floor == current_floor) ? '*' : ' ';
+
+        list_for_each_entry(req, &floor_queues[floor - 1], list) 
+		{
+            count++;
+        }
+
+        seq_printf(m, "[%c] Floor %d: %d ", marker, floor, count);
+        list_for_each_entry(req, &floor_queues[floor - 1], list) 
+		{
+            seq_printf(m, "%c%d ", pet_letters[req->pet_type], req->dest_floor);
+        }
+        seq_printf(m, "\n");
+    }
+
+    seq_printf(m, "Number of pets: %d\n", pets_waiting);
+    seq_printf(m, "Number of pets waiting: %d\n", pets_waiting);
+    seq_printf(m, "Number of pets serviced: %d\n", pets_serviced);
+
     return 0;
 }
 
@@ -129,6 +225,13 @@ static void __exit elevator_exit(void)
 	STUB_start_elevator = NULL;
 	STUB_issue_request = NULL;
 	STUB_stop_elevator = NULL;
+
+	// if the thread is still running when the module is removed
+	if (elevator_thread) 
+	{
+		kthread_stop(elevator_thread);
+		elevator_thread = NULL;
+	}
 
 	//call floor clear on every floor
 	for (int i = 0; i < NUM_FLOORS; i++) clear_pet_list(&floor_queues[i]);
