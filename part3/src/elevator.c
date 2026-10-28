@@ -1,3 +1,14 @@
+/*
+ * AI Use Disclosure:
+ * Portions of this file (Part 3c: kthread lifecycle management, elevator
+ * state machine, floor-to-floor movement timing, and pet boarding/unloading
+ * logic) were developed with the assistance of Claude (Anthropic), an AI
+ * coding assistant, through an interactive, step-by-step process involving
+ * design discussion, code generation, and iterative testing. All AI-suggested
+ * code was reviewed, tested, and verified by the author before inclusion.
+ */
+
+
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/proc_fs.h>
@@ -48,19 +59,92 @@ struct elevator_request {
 static struct list_head floor_queues[NUM_FLOORS];
 static LIST_HEAD(elevator_queue);
 
-// main loop for the elevator thread
+// STUB: 3f will implement real scheduling logic; for now, pick an arbitrary
+// floor with pending work so the loop has something to execute
+static int pick_next_floor(void)
+{
+    int i;
+    for (i = 0; i < NUM_FLOORS; i++) 
+    {
+        if (!list_empty(&floor_queues[i]))
+            return i + 1;
+    }
+    return -1;  // nothing waiting anywhere
+}
+
+// STUB: 3e/3f will implement real capacity logic; always allow boarding for now
+static bool pet_fits(int pet_type)
+{
+    return true;
+}
+
+// unloads any pets whose destination is the current floor
+static void unload_pets(void)
+{
+    struct elevator_request *req, *next;
+
+    list_for_each_entry_safe(req, next, &elevator_queue, list) {
+        if (req->dest_floor == current_floor) {
+            list_del(&req->list);
+            kfree(req);
+            pets_serviced++;
+        }
+    }
+}
+
+// loads waiting pets from the current floor onto the elevator, FIFO order
+static void load_pets(void)
+{
+    struct elevator_request *req, *next;
+
+    list_for_each_entry_safe(req, next, &floor_queues[current_floor - 1], list) {
+        if (!pet_fits(req->pet_type))
+            break;  // FIFO: stop at the first pet that doesn't fit, don't skip ahead
+
+        list_del(&req->list);
+        list_add_tail(&req->list, &elevator_queue);
+        pets_waiting--;
+    }
+}
+
+// main loop for the elevator kthread
 static int elevator_run(void *data)
 {
-   while (!kthread_should_stop()) 
-   {
+
+    while (!kthread_should_stop()) 
+    {
+        int target;
+
         if (stopping && list_empty(&elevator_queue)) 
 		{
             state = OFFLINE;
             break;   // thread exits on its own
         }
 
-        msleep(100);
+        // decide where to go next
+        target = pick_next_floor();
+        
+        if (target == -1) 
+        {
+            state = IDLE;
+            msleep(100);
+            continue;
+        }
+
+        while (current_floor != target) 
+        {
+            state = (target > current_floor) ? UP : DOWN;
+            msleep(2000);
+            current_floor += (target > current_floor) ? 1 : -1;
+        }
+
+        // arrived: load/unload
+        state = LOADING;
+        msleep(1000);
+        unload_pets();
+        load_pets();
     }
+
     elevator_thread = NULL;
     stopping = false;
     return 0;
