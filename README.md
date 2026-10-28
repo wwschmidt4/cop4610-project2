@@ -18,16 +18,16 @@ This project extends the Linux kernel with a simulated pet elevator system. It i
 - **Assigned to**: Jane Smith
 
 ### Part 3a: Adding System Calls
-- **Responsibilities**: [Description]
-- **Assigned to**: Alex Brown
+- **Responsibilities**: Add the elevator system calls to the kernel
+- **Assigned to**: Will Schmidt
 
 ### Part 3b: Kernel Compilation
 - **Responsibilities**: [Description]
 - **Assigned to**: Alex Brown, Jane Smith
 
 ### Part 3c: Threads
-- **Responsibilities**: [Description]
-- **Assigned to**: Alex Brown, Jane Smith
+- **Responsibilities**: Implement elevator kthread for movement mechanics
+- **Assigned to**: Will Schmidt
 
 ### Part 3d: Linked List
 - **Responsibilities**: [Description]
@@ -113,6 +113,31 @@ source tree and compiled into the kernel.
 `syscalls.c` only forwards each call to the `elevator` module through exported function
 pointers. The system calls return `-ENOSYS` until `elevator.ko` is loaded.
 
+## Part 3: Elevator Kernel Module
+
+### Build
+
+$ cd part3
+$ make
+
+
+### Load
+
+$ sudo insmod src/elevator.ko
+
+
+### Run
+
+$ ./tests/elevator-test/consumer --start
+$ ./tests/elevator-test/producer [number_of_pets]
+$ cat /proc/elevator
+$ ./tests/elevator-test/consumer --stop
+
+
+### Unload
+
+$ sudo rmmod elevator
+
 ## Development Log
 Each member records their contributions here.
 
@@ -122,7 +147,10 @@ Each member records their contributions here.
 |------------|------------------------|
 | 2026-10-15 | Implemented part 1     |
 | 2026-10-16 | Implemented part 3a    |
-| 2026-10-19 | basic proc file code added  |
+| 2026-10-19 | Basic proc file code added  |
+| 2026-10-27 | Implemented thread skeleton |
+| 2026-10-28 | Implemented thread logic (3c complete) |
+
 
 ### [Member 2]
 
@@ -147,13 +175,4 @@ Document in-person meetings, their purpose, and what was discussed.
 
 | Date       | Attendees            | Topics Discussed | Outcomes / Decisions |
 |------------|----------------------|------------------|-----------------------|
-| YYYY-MM-DD | [Names]              | [Agenda items]   | [Actions/Next steps]  |
-| YYYY-MM-DD | [Names]              | [Agenda items]   | [Actions/Next steps]  |
-| YYYY-MM-DD | [Names]              | [Agenda items]   | [Actions/Next steps]  |
-
-
-
-## Bugs
-- **Bug 1**: This is bug 1.
-- **Bug 2**: This is bug 2.
-- **Bug 3**: This is bug 3.
+| 2026-10-12 | Will, Aleksandar, Carter              | Discussed division of labor and established our schedules   | Labor was divided succesfully  |
