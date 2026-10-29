@@ -7,6 +7,10 @@
 #   loads it, starts the elevator, issues pets, checks invariants every 2 s,
 #   stops the elevator, waits for it to drain to OFFLINE, and unloads it.
 
+
+
+
+#run this command in linux to test ---> bash /media/sf_cop4610-project2/part3/tests/quick_test.sh 40 20
 NUM_PETS=${1:-20}
 RUN_SECS=${2:-60}
 SRC=/media/sf_cop4610-project2
