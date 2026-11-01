@@ -14,24 +14,24 @@ This project extends the Linux kernel with a simulated pet elevator system. It i
 - **Assigned to**: Will Schmidt
 
 ### Part 2: Timer Kernel Module
-- **Responsibilities**: [Description]
-- **Assigned to**: Jane Smith
+- **Responsibilities**: Implementing my_timer kernel module. Create and remove proc entries on load and unload.
+- **Assigned to**: Carter Venclauskas
 
 ### Part 3a: Adding System Calls
 - **Responsibilities**: Add the elevator system calls to the kernel
 - **Assigned to**: Will Schmidt
 
 ### Part 3b: Kernel Compilation
-- **Responsibilities**: [Description]
-- **Assigned to**: Alex Brown, Jane Smith
+- **Responsibilities**: Compiling custom kernel
+- **Assigned to**: Carter Venclauskas, Will Schmidt, Aleksandar Stavreski (All separate VMs)
 
 ### Part 3c: Threads
 - **Responsibilities**: Implement elevator kthread for movement mechanics
 - **Assigned to**: Will Schmidt
 
 ### Part 3d: Linked List
-- **Responsibilities**: [Description]
-- **Assigned to**: Jane Smith
+- **Responsibilities**: Implemented linked list for elevator
+- **Assigned to**: Carter Venclauskas
 
 ### Part 3e: Mutexes
 - **Responsibilities**: [Description]
@@ -141,7 +141,7 @@ $ sudo rmmod elevator
 ## Development Log
 Each member records their contributions here.
 
-### [Member 1]
+### Will Schmidt
 
 | Date       | Work Completed / Notes |
 |------------|------------------------|
@@ -152,7 +152,7 @@ Each member records their contributions here.
 | 2026-10-28 | Implemented thread logic (3c complete) |
 
 
-### [Member 2]
+### Carter Venclauskas
 
 | Date       | Work Completed / Notes |
 |------------|------------------------|
@@ -165,9 +165,8 @@ Each member records their contributions here.
 
 | Date       | Work Completed / Notes |
 |------------|------------------------|
-| YYYY-MM-DD | [Description of task]  |
-| YYYY-MM-DD | [Description of task]  |
-| YYYY-MM-DD | [Description of task]  |
+| 2026-10-24 | Implemented timer module, compiled personal custom kernel, basic linked list  |
+| 2026-10-27 | Fully refined and implemented linked list to match the project instructions.  |
 
 
 ## Meetings
