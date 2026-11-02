@@ -152,7 +152,7 @@ Each member records their contributions here.
 | 2026-10-28 | Implemented thread logic (3c complete) |
 
 
-### Carter Venclauskas
+### [Member 2]
 
 | Date       | Work Completed / Notes |
 |------------|------------------------|
@@ -161,7 +161,7 @@ Each member records their contributions here.
 | YYYY-MM-DD | [Description of task]  |
 
 
-### [Member 3]
+### Carter Venclauskas
 
 | Date       | Work Completed / Notes |
 |------------|------------------------|
