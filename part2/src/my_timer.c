@@ -24,7 +24,7 @@ static int timer_show(struct seq_file *m, void *v)
     //retrieve curr time
     ktime_get_real_ts64(&curr_time);
 
-    print curr time
+    //print curr time
     seq_printf(m, "Current time: %lld.%09ld seconds\n", (long long)curr_time.tv_sec, curr_time.tv_nsec);
 
     //if not first time reading, then calc
