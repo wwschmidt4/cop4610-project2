@@ -66,7 +66,7 @@ static int current_floor = 1;
 static int direction = 1;       // last direction traveled: +1 = up, -1 = down
 static bool stopping;           // true once stop_elevator() is called and we're draining
 
-// floor lists for waiting pets and elevator list for pets on board
+//init one waiting queue per floor and one list for pets currently on elevator
 static struct list_head floor_queues[NUM_FLOORS];
 static LIST_HEAD(elevator_queue);
 
@@ -92,6 +92,7 @@ static bool has_dropoff(int floor)
 {
     struct elevator_request *req;
 
+    //iterate through every pet currently on elevator to check destination
     list_for_each_entry(req, &elevator_queue, list) {
         if (req->dest_floor == floor)
             return true;
@@ -143,6 +144,7 @@ static void unload_pets(void)
 {
     struct elevator_request *req, *next;
 
+    //use safe iterator bc current node might be removed/freed
     list_for_each_entry_safe(req, next, &elevator_queue, list) {
         if (req->dest_floor == current_floor) {
             list_del(&req->list);
@@ -279,9 +281,11 @@ static int issue_request(int start, int dest, int type)
     if (!req)
         return -ENOMEM;
 
+    
     req->start_floor = start;
     req->dest_floor = dest;
     req->pet_type = type;
+    //init nodes linked list pointers b4 inserting
     INIT_LIST_HEAD(&req->list);
 
     mutex_lock(&elevator_mutex);
@@ -331,6 +335,7 @@ static int elevator_show(struct seq_file *m, void *v)
         int count = 0;
         char marker = (floor == current_floor) ? '*' : ' ';
 
+        //count # of pets waiting on this floor
         list_for_each_entry(req, &floor_queues[floor - 1], list)
             count++;
 
@@ -368,7 +373,7 @@ static const struct proc_ops elevator_proc_ops = {
 static void clear_pet_list(struct list_head *head)
 {
     struct elevator_request *req, *next;
-
+    
     list_for_each_entry_safe(req, next, head, list) {
         list_del(&req->list);
         kfree(req);
@@ -380,6 +385,7 @@ static int __init elevator_init(void)
 {
     int i;
 
+    //init linked list head for each floors waiting queue
     for (i = 0; i < NUM_FLOORS; i++)
         INIT_LIST_HEAD(&floor_queues[i]);
 
