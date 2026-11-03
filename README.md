@@ -34,12 +34,12 @@ This project extends the Linux kernel with a simulated pet elevator system. It i
 - **Assigned to**: Carter Venclauskas
 
 ### Part 3e: Mutexes
-- **Responsibilities**: [Description]
-- **Assigned to**: John Doe
+- **Responsibilities**: Implement mutex locking around all shared elevator states to prevent race conditions between the kthread and syscall handlers.
+- **Assigned to**: Aleksandar Stavreski
 
 ### Part 3f: Scheduling Algorithm
-- **Responsibilities**: [Description]
-- **Assigned to**: Alex Brown, John Doe
+- **Responsibilities**: Implement the logic that determines which floor the elevator services next, handling pickups and drop-offs 
+- **Assigned to**: Aleksandar Stavreski
 
 ## File Listing
 ```
@@ -85,14 +85,17 @@ This will run both executables under strace, generating empty.trace and part1.tr
 ### Compilation
 For a C/C++ example:
 ```bash
+cd part2
 make
 ```
-This will build the executable in ...
+This will build the kernel module `my_timer.ko`.
 ### Execution
 ```bash
-make run
+sudo insmod my_timer.ko
+cat /proc/timer
+sudo rmmod my_timer
 ```
-This will run the program ...
+This will load the module, read the current time (and elapsed time since the last read), and unload the module when done.
 
 ## Part 3a System Calls (`syscalls.c` and its Makefile)
 
@@ -156,9 +159,7 @@ Each member records their contributions here.
 
 | Date       | Work Completed / Notes |
 |------------|------------------------|
-| YYYY-MM-DD | [Description of task]  |
-| YYYY-MM-DD | [Description of task]  |
-| YYYY-MM-DD | [Description of task]  |
+| 2026-10-29 | Implemented parts 3e and 3f  |
 
 
 ### Carter Venclauskas
